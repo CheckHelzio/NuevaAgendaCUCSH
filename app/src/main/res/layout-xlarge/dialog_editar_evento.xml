@@ -2,8 +2,8 @@
 
 <RelativeLayout android:id="@+id/ly"
     android:elevation="24dp"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="@dimen/ancho_dialog"
+    android:layout_height="wrap_content"
     android:layout_gravity="center"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,8 +11,8 @@
 
     <LinearLayout
         android:id="@+id/fondo"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="@dimen/ancho_dialog"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:background="#fff"
         android:clickable="true"
