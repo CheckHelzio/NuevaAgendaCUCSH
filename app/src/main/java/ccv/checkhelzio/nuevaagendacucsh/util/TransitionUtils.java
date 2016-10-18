@@ -112,4 +112,23 @@ public class TransitionUtils {
 
         @Override public void onTransitionResume(Transition transition) { }
     }
+
+    public static @Nullable Transition findTransition(
+            @NonNull TransitionSet set,
+            @NonNull Class<? extends Transition> clazz,
+            @IdRes int targetId) {
+        for (int i = 0; i < set.getTransitionCount(); i++) {
+            Transition transition = set.getTransitionAt(i);
+            if (transition.getClass() == clazz) {
+                if (transition.getTargetIds().contains(targetId)) {
+                    return transition;
+                }
+            }
+            if (transition instanceof TransitionSet) {
+                Transition child = findTransition((TransitionSet) transition, clazz, targetId);
+                if (child != null) return child;
+            }
+        }
+        return null;
+    }
 }

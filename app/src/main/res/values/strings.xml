@@ -53,4 +53,5 @@
     <string name="cd_repeticion">Repetición</string>
     <string name="openDrawer">abierto</string>
     <string name="closeDrawer">cerrado</string>
+    <string name="transition_search_back">transition_search_back</string>
 </resources>

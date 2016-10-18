@@ -85,6 +85,7 @@ public class Principal extends AppCompatActivity {
     private int id_prox = 0;
     protected static boolean filtro1 = true, filtro2 = true, filtro3  = true, filtro4 = true, filtro5 = true;
     private boolean actualizando = false;
+    private Toolbar toolbar;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,7 +117,7 @@ public class Principal extends AppCompatActivity {
 
     private void iniciarDrawer() {
         // Initializing Toolbar and setting it as the actionbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.header);
+        toolbar = (Toolbar) findViewById(R.id.header);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("");
 
@@ -531,6 +532,12 @@ public class Principal extends AppCompatActivity {
                 Intent intent = new Intent(this, DateDialogHelzio.class);
                 Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(this).toBundle();
                 startActivityForResult(intent, HELZIO_DATE_DIALOG, bundle);
+                return true;
+            case R.id.menu_buscar:
+                View searchMenuView = toolbar.findViewById(R.id.menu_buscar);
+                Bundle options = ActivityOptions.makeSceneTransitionAnimation(this, searchMenuView,
+                        getString(R.string.transition_search_back)).toBundle();
+                startActivityForResult(new Intent(this, SearchActivity.class), RC_SEARCH, options);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
