@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/conte"
+    android:outlineProvider="bounds"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:elevation="24dp"
+    android:transitionName="@string/transition_date_dialog_helzio">
+
+    <TextView
+        android:id="@+id/dateDialogToolbar"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:layout_alignEnd="@+id/conteDialog"
+        android:layout_alignStart="@+id/conteDialog"
+        android:background="@color/colorPrimario"
+        android:gravity="center"
+        android:text="Selecciona los días en los que se repetira el evento"
+        android:textColor="#fff" />
+
+    <com.squareup.timessquare.CalendarPickerView
+        android:layout_below="@+id/dateDialogToolbar"
+        android:id="@+id/conteDialog"
+        android:backgroundTint="#fff"
+        android:layout_width="500dp"
+        android:layout_height="500dp"
+        />
+
+    <android.support.v7.widget.ButtonBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_alignEnd="@+id/conteDialog"
+        android:layout_alignStart="@+id/conteDialog"
+        android:layout_below="@+id/conteDialog"
+        android:background="#fff"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/bt_dialog_cancenlar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:text="@string/cancelar"
+            android:textColor="@color/colorAcento" />
+
+        <Button
+            android:id="@+id/bt_dialog_aceptar"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:text="@string/aceptar"
+            android:textColor="@color/colorAcento" />
+
+    </android.support.v7.widget.ButtonBarLayout>
+</RelativeLayout>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:checkableBehavior="all">
+        <item
+            android:checkable="true"
+            android:id="@+id/navigation_item_1"
+            android:checked="true"
+            android:icon="@drawable/ic_edificio"
+            android:title="Edificio A" />
+        <item
+            android:checkable="true"
+            android:id="@+id/navigation_item_2"
+            android:checked="true"
+            android:icon="@drawable/ic_edificio"
+            android:title="Edificio B" />
+        <item
+            android:checkable="true"
+            android:id="@+id/navigation_item_3"
+            android:checked="true"
+            android:icon="@drawable/ic_edificio"
+            android:title="Edificio C" />
+        <item
+            android:checkable="true"
+            android:id="@+id/navigation_item_4"
+            android:checked="true"
+            android:icon="@drawable/ic_edificio"
+            android:title="Edificio D" />
+        <item
+            android:checkable="true"
+            android:id="@+id/navigation_item_5"
+            android:checked="true"
+            android:icon="@drawable/ic_edificio"
+            android:title="Edificio F" />
+    </group>
+</menu>

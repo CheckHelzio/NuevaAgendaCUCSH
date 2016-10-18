@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:weightSum="7"
+    android:id="@+id/aba_b"
+    android:background="#fff"
+    android:orientation="horizontal">
+
+    <TextView
+        android:text="@string/lunes"
+        style="@style/TextViewNombreDias"/>
+    <TextView
+        android:text="@string/martes"
+        style="@style/TextViewNombreDias"/>
+    <TextView
+        android:text="@string/miercoles"
+        style="@style/TextViewNombreDias"/>
+    <TextView
+        android:text="@string/jueves"
+        style="@style/TextViewNombreDias"/>
+    <TextView
+        android:text="@string/viernes"
+        style="@style/TextViewNombreDias"/>
+    <TextView
+        android:text="@string/sabado"
+        style="@style/TextViewNombreDias"/>
+    <TextView
+        android:text="@string/domingo"
+        style="@style/TextViewNombreDias"/>
+</LinearLayout>

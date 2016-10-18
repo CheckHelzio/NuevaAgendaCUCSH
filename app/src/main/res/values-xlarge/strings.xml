@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Registro Belenes</string>
+    <string name="header">Centro Universitario de Ciencias Sociales y Humanidades</string>
+    <string name="datos_drawer_a">Sede La Normal</string>
+    <string name="lunes">lunes</string>
+    <string name="martes">martes</string>
+    <string name="miercoles">miércoles</string>
+    <string name="jueves">jueves</string>
+    <string name="viernes">viernes</string>
+    <string name="sabado">sábado</string>
+    <string name="domingo">domingo</string>
+    <string name="toca_resgitrar_evento">Presiona aquí para registrar otro evento.</string>
+    <string name="no_eventos_registra">No hay eventos registrados este día. Presiona para registrar uno.</string>
+</resources>

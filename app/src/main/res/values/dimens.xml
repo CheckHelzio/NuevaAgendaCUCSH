@@ -1,0 +1,28 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="fab_size">40dp</dimen>
+    <dimen name="padding_normal">16dp</dimen>
+
+
+    <!-- Z-axis elevations -->
+    <dimen name="z_app_bar">4dp</dimen>
+    <dimen name="z_card">2dp</dimen>
+    <dimen name="z_fab">6dp</dimen>
+    <dimen name="touch_raise">6dp</dimen>
+    <dimen name="card_raise">8dp</dimen>
+    <dimen name="icon_fecha">16dp</dimen>
+    <dimen name="touched_app_bar">8dp</dimen>
+    <dimen name="z_fab_over_touchable_app_bar">9dp</dimen>
+    <dimen name="z_drawer">16dp</dimen>
+    <dimen name="z_dialog">24dp</dimen>
+    <dimen name="marca_agua">9sp</dimen>
+    <dimen name="ancho_dialog">300dp</dimen>
+    <dimen name="simetria_pantalla_grande">0dp</dimen>
+    <dimen name="simetria_pantalla_grande_dos">0dp</dimen>
+    <dimen name="mensaje_con_eventos_pading_left">96dp</dimen>
+    <dimen name="tamaño_dialog_sin_eventos_alto">120dp</dimen>
+    <dimen name="padding_top_mens_sin_eventos">85dp</dimen>
+    <dimen name="diez_sp">10sp</dimen>
+</resources>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright 2012 Square, Inc. -->
+
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:color="#000">
+
+  <!-- mask here... -->
+  <item android:id="@android:id/mask">
+    <color android:color="#000"/> <!-- any color will do -->
+  </item>
+
+  <item>
+    <selector>
+      <!-- ... NOT here. -->
+      <item app:tsquare_state_range_middle="true">
+        <color android:color="@color/calendar_selected_range_bg"/>
+      </item>
+      <item android:state_selected="true">
+        <color android:color="#0099cc"/>
+      </item>
+      <item android:state_pressed="true">
+        <color android:color="#0099cc"/>
+      </item>
+      <item app:tsquare_state_current_month="false">
+        <color android:color="@color/calendar_inactive_month_bg"/>
+      </item>
+      <item app:tsquare_state_highlighted="true">
+        <color android:color="@color/calendar_highlighted_day_bg"/>
+      </item>
+      <item app:tsquare_state_today="true">
+        <color android:color="@color/calendar_text_active"/>
+      </item>
+      <item>
+        <color android:color="#fff"/>
+      </item>
+    </selector>
+  </item>
+</ripple>
+

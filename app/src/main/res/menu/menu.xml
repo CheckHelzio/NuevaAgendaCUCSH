@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:title="Buscar evento"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_find" />
+
+    <item
+        android:id="@+id/menu_fecha"
+        android:title="Ir a fecha"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_fecha" />
+</menu>

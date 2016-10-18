@@ -1,0 +1,93 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ccv.checkhelzio.nuevaagendacucsh">
+
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/launcher_icon"
+        android:label="Agenda de Eventos CUCSH"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity android:name=".ui.Logo"
+            android:theme="@style/AppTheme.TranslucentStatusBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.Principal"
+            android:theme="@style/AppTheme.TranslucentStatusBar">
+            <intent-filter>
+                <action android:name="REGISTRO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.DateDialogHelzio"
+            android:theme="@style/AppTheme.Translucent.DateDialog">
+            <intent-filter>
+                <action android:name="DATE_DIALOG" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.DateDialogHelzioRegistrar"
+            android:theme="@style/AppTheme.Translucent">
+            <intent-filter>
+                <action android:name="DATE_DIALOG_REGISTRAR" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.DialogListaEventosHelzio"
+            android:windowSoftInputMode="adjustNothing"
+            android:theme="@style/AppTheme.Translucent">
+            <intent-filter>
+                <action android:name="EVENTOS_DIALOG" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.DialogInfoEventosHelzio"
+            android:windowSoftInputMode="adjustNothing"
+            android:theme="@style/AppTheme.Translucent">
+            <intent-filter>
+                <action android:name="INFO_EVENTOS_DIALOG" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".ui.RegistrarEvento"
+            android:windowSoftInputMode="adjustNothing"
+            android:theme="@style/AppTheme.Translucent">
+            <intent-filter>
+                <action android:name="INFO_EVENTOS_DIALOG" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+
+        <activity android:name=".ui.DialogAgregarFechas"
+            android:windowSoftInputMode="adjustNothing"
+            android:theme="@style/AppTheme.Translucent">
+            <intent-filter>
+                <action android:name="DIALOG_AGREGAR_FECHAS" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+    </application>
+</manifest>

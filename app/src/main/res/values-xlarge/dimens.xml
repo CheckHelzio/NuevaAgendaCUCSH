@@ -1,0 +1,11 @@
+<resources>
+    <dimen name="fab_size">56dp</dimen>
+    <item name="dialog_ancho" format="float" type="dimen">0.5</item>
+    <dimen name="icon_fecha">24dp</dimen>
+    <dimen name="ancho_dialog">600dp</dimen>
+    <dimen name="simetria_pantalla_grande">35dp</dimen>
+    <dimen name="simetria_pantalla_grande_dos">104dp</dimen>
+    <dimen name="mensaje_con_eventos_pading_left">104dp</dimen>
+    <dimen name="tamaño_dialog_sin_eventos_alto">150dp</dimen>
+    <dimen name="padding_top_mens_sin_eventos">100dp</dimen>
+</resources>

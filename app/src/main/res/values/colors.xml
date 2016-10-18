@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="mid_grey">#40808080</color>
+    <color name="colorPrimario">#460f10</color>
+    <color name="colorPrimarioOscuro">#390C0D</color>
+    <color name="colorAcento">#0099cc</color>
+    <color name="ed_a">#B71C1C</color>
+    <color name="ed_a1">#F44336</color>
+    <color name="ed_b">#0D47A1</color>
+    <color name="ed_b1">#2196F3</color>
+    <color name="ed_c">#E65100</color>
+    <color name="ed_c1">#FF9800</color>
+    <color name="ed_d">#1B5E20</color>
+    <color name="ed_d1">#4CAF50</color>
+    <color name="ed_e">#4A148C</color>
+    <color name="ed_f">#827717</color>
+    <color name="ed_f1">#CDDC39</color>
+    <color name="no_select">#9E9E9E</color>
+    <color name="ripple_dark">@color/mid_grey</color>
+    <color name="scrim">#99323232</color>
+    <color name="transparente">#00000000</color>
+</resources>

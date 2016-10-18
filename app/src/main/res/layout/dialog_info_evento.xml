@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:onClick="dismiss">
+
+    <RelativeLayout
+        android:clickable="true"
+        android:background="?colorPrimary"
+        android:id="@+id/fondo"
+        android:layout_width="@dimen/ancho_dialog"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:transitionName="fondo">
+
+        <RelativeLayout
+            android:id="@+id/ly1"
+            android:layout_width="match_parent"
+            android:layout_height="128dp">
+
+            <View
+                android:visibility="invisible"
+                android:id="@+id/reveal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="72dp"
+                android:paddingRight="72dp">
+
+                <TextView
+                    android:id="@+id/titulo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="128dp"
+                    android:ellipsize="end"
+                    android:gravity="bottom"
+                    android:maxLines="1"
+                    android:paddingBottom="30dp"
+                    android:textColor="#fff"
+                    android:textSize="20sp" />
+
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/marca_agua"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="62dp"
+                android:gravity="bottom"
+                android:paddingEnd="73dp"
+                android:paddingStart="73dp"
+                android:textColor="#fff"
+                android:textSize="@dimen/marca_agua" />
+
+            <ImageView
+                android:contentDescription="@string/label_cerrar"
+                android:onClick="dismiss"
+                android:id="@+id/iv_cerrar_dialog"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_cancel"
+                android:tint="#fff" />
+
+            <ImageView
+                android:contentDescription="@string/label_borrar_evento"
+                android:id="@+id/iv_delete"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_alignParentEnd="true"
+                android:background="?android:attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:paddingLeft="18dp"
+                android:paddingRight="18dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_delete_black_24dp"
+                android:tint="#fff" />
+
+            <EditText
+                android:id="@+id/et_pin"
+                android:inputType="numberPassword"
+                android:maxLines="1"
+                android:imeOptions="actionDone"
+                android:textSize="12sp"
+                android:background="#00000000"
+                android:textColorHint="#fff"
+                android:fontFamily="sans-serif"
+                android:textColor="#FFF"
+                android:maxLength="4"
+                android:gravity="center_vertical|end"
+                android:layout_alignParentEnd="true"
+                android:hint="@string/contrase_a"
+                android:digits="0123456789"
+                android:layout_marginEnd="56dp"
+                android:layout_width="80dp"
+                android:layout_height="60dp" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/ly2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/ly1"
+            android:background="#fff"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:contentDescription="@string/label_auditorio"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_auditorio" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/label_auditorio"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="@dimen/diez_sp" />
+
+                <TextView
+                    android:id="@+id/tv_auditorios"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:gravity="center_vertical"
+                    android:layout_marginTop="10dp"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:contentDescription="@string/label_tipo_de_evento"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_actividad" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/label_tipo_de_evento"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="@dimen/diez_sp" />
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/tv_tipo_actividad"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:contentDescription="@string/label_horario_del_evento"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="fitCenter"
+                    android:tint="#000"
+                    android:src="@drawable/ic_clock" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/label_horario_del_evento"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="@dimen/diez_sp" />
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/tv_horario"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingEnd="18dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:contentDescription="@string/label_fecha_del_evento"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="fitCenter"
+                    android:tint="#000"
+                    android:src="@drawable/ic_fecha" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/label_fecha_del_evento"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="@dimen/diez_sp" />
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/tv_fecha"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingEnd="18dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:contentDescription="@string/label_nombre_del_organizador"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_persona" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/label_nombre_del_organizador"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="@dimen/diez_sp" />
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/tv_nombre_organizador"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingEnd="18dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:contentDescription="@string/label_numero_tel"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_tel" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/label_numero_tel"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="@dimen/diez_sp" />
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/tv_num_tel"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingEnd="18dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:contentDescription="@string/label_nota"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_nota" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/label_nota"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="@dimen/diez_sp" />
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/tv_notas"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingEnd="18dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_marginBottom="16dp"
+                android:layout_width="fill_parent"
+                android:layout_height="56dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:contentDescription="@string/label_id"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="18dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_id" />
+
+                <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:layout_marginTop="12dp"
+                    android:text="@string/label_id"
+                    android:maxLines="1"
+                    android:paddingEnd="56dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="@dimen/diez_sp" />
+
+                <TextView
+                    android:layout_marginTop="10dp"
+                    android:id="@+id/tv_id"
+                    android:layout_width="match_parent"
+                    android:layout_height="fill_parent"
+                    android:background="#00000000"
+                    android:gravity="center_vertical"
+                    android:maxLines="1"
+                    android:paddingEnd="18dp"
+                    android:paddingStart="72dp"
+                    android:textColor="#121212"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <ImageButton
+            android:contentDescription="@string/label_editar_evento"
+            android:background="@drawable/fab"
+            android:id="@+id/fab_edit"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="18dp"
+            android:layout_marginStart="9dp"
+            android:layout_marginTop="104dp"
+            android:elevation="8dp"
+            android:src="@drawable/ic_edit"
+            android:tint="#fff" />
+
+        <android.support.design.widget.CoordinatorLayout
+            android:id="@+id/snackposs"
+            android:layout_centerHorizontal="true"
+            android:layout_alignBottom="@+id/ly2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+</FrameLayout>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:onClick="dismiss"
+    android:orientation="vertical"
+    android:transitionGroup="false">
+
+    <RelativeLayout
+        android:clickable="true"
+        android:id="@+id/fondo"
+        android:layout_width="@dimen/ancho_dialog"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:background="#fff"
+        android:elevation="24dp"
+        android:transitionName="fondo">
+
+        <TextView
+            android:id="@+id/tv_nom_dia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingEnd="@dimen/simetria_pantalla_grande"
+            android:paddingStart="35dp"
+            android:paddingTop="18dp"
+            android:transitionName="texto" />
+
+        <TextView
+            android:id="@+id/tv_num_dia"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingEnd="35dp"
+            android:paddingStart="35dp"
+            android:paddingTop="26dp"
+            android:textSize="48sp"
+            android:transitionName="texto" />
+
+        <TextView
+            android:id="@+id/tv_mensaje_no_evento"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/tamaño_dialog_sin_eventos_alto"
+            android:paddingEnd="@dimen/simetria_pantalla_grande"
+            android:paddingStart="35dp"
+            android:paddingTop="@dimen/padding_top_mens_sin_eventos"/>
+
+        <TextView
+            android:id="@+id/tv_mensaje_con_evento"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingStart="@dimen/mensaje_con_eventos_pading_left"
+            android:paddingEnd="@dimen/simetria_pantalla_grande_dos"
+            android:maxLines="1"
+            android:layout_alignParentTop="true"
+            android:paddingTop="56dp"
+            android:textSize="14sp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tv_num_dia"
+            android:paddingEnd="20dp"
+            android:paddingBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:paddingStart="20dp" />
+
+    </RelativeLayout>
+
+</FrameLayout>

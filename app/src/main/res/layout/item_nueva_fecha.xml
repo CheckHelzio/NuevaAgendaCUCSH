@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="56dp"
+    android:background="?android:attr/selectableItemBackground">
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="18dp"
+        android:contentDescription="@string/auditorio"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_fecha"
+        android:tint="#000" />
+
+    <TextView
+        android:id="@+id/label_fecha"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="12dp"
+        android:background="#00000000"
+        android:maxLines="1"
+        android:paddingEnd="56dp"
+        android:paddingStart="72dp"
+        android:text="@string/label_fecha_del_evento"
+        android:textColor="#121212"
+        android:textSize="@dimen/diez_sp" />
+
+    <TextView
+        android:id="@+id/tv_fecha"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:gravity="center_vertical"
+        android:hint="Fecha del evento"
+        android:maxLines="1"
+        android:paddingEnd="72dp"
+        android:paddingStart="72dp"
+        android:paddingTop="10dp"
+        android:textColor="#121212"
+        android:textColorHint="#121212"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_hora_inicial_label"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignStart="@+id/sp_hora_inicial"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:background="#00000000"
+        android:maxLines="1"
+        android:text="@string/label_hora_inicial"
+        android:textColor="#121212"
+        android:textSize="@dimen/diez_sp" />
+
+    <Spinner
+        android:id="@+id/sp_hora_inicial"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="16dp"
+        android:layout_toStartOf="@+id/separador"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:gravity="center_vertical"
+        android:hint="@string/label_tipo_de_evento2"
+        android:maxLines="1"
+        android:paddingTop="10dp"
+        android:textColor="#121212"
+        android:textColorHint="#121212"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/separador"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="16dp"
+        android:layout_toStartOf="@+id/sp_hora_final"
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:paddingTop="10dp"
+        android:text=" - "
+        android:textColor="#121212"
+        android:textColorHint="#121212"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_hora_final_label"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_alignStart="@+id/sp_hora_final"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:background="#00000000"
+        android:maxLines="1"
+        android:text="@string/label_hora_final"
+        android:textColor="#121212"
+        android:textSize="@dimen/diez_sp" />
+
+    <Spinner
+        android:id="@+id/sp_hora_final"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:gravity="center_vertical"
+        android:hint="@string/label_tipo_de_evento2"
+        android:maxLines="1"
+        android:paddingTop="10dp"
+        android:textColor="#121212"
+        android:textColorHint="#121212"
+        android:textSize="16sp" />
+
+</RelativeLayout>
