@@ -484,14 +484,21 @@ public class RegistrarEvento extends AppCompatActivity {
     }
 
     private void comprobarConBaseDatos(Fecha f, int n) {
+
+        // HORA Y FECHA DE LA FECHA
         Calendar c = Calendar.getInstance();
-        Calendar c2 = Calendar.getInstance();
         c.set(2016,0,1);
         c.set(Calendar.DAY_OF_YEAR, f.getDia());
+
+        // HORA Y FECHA ACTUAL
+        Calendar c2 = Calendar.getInstance();
+
         // COMPROBAR PRIMERO SI SE ESTA INTENTANDO REGISTRAR UN EVENTO A LAS 9:00 PM O MAS TARDE
         if (f.getHoraInicial() > 27) {
             agregarConflictoV(new Conflictos(n, 0, "V"));
         }
+
+        // VERFICIAR SI ES EL DIA DE HOY
         else if (c.get(Calendar.YEAR) == c2.get(Calendar.YEAR) && c.get(Calendar.MONTH) == c2.get(Calendar.MONTH) && c.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH)){
             quitarConflictosV(n);
             if (f.getHoraInicial() <= horaASpinner(c2.get(Calendar.HOUR_OF_DAY), c2.get(Calendar.MINUTE))){
