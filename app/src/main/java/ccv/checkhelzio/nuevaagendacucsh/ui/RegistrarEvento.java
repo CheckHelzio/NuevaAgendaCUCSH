@@ -374,7 +374,7 @@ public class RegistrarEvento extends AppCompatActivity {
             // SI HAY MAS DE UNA FECHA DE REGISTRO
             if (listaFechas.size() > 1){
 
-                // HAY QUE COMPROBAR QUE LAS DISTINTAS FECHAS NO TENGAN CONFLICTO ENTRE ELLAS
+                // HAY QUE COMPROBAR QUE LAS DISTINTAS FECHAS NO TENGAN CONFLICTO ENTRE ELLAS JBH
                 comprobarConFechas();
 
                 // POR CADA FECHA ES UN EVENTO DIFERENTE, COMPROBAR CADA UNO DE ESOS EVENTOS
