@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayout;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +58,7 @@ public class CalendarFragment extends Fragment {
         calendarioActualizarDiasMes.set(2016, 0, 1);
         calendarioActualizarDiasMes.set(Calendar.MONTH, fragVal);
         actualizarDiasDelMes((GridLayout) layout.findViewById(R.id.grid), (LinearLayout) layout.findViewById(R.id.aba_b));
+        Log.v("FRAGMENT", "FRAGMENT: " + fragVal);
         return layout;
     }
 

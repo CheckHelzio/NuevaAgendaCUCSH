@@ -1,7 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="ccv.checkhelzio.nuevaagendacucsh">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
@@ -13,6 +12,7 @@
         android:theme="@style/AppTheme">
 
         <activity android:name=".ui.Logo"
+            android:configChanges="orientation|keyboardHidden|keyboard"
             android:theme="@style/AppTheme.TranslucentStatusBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,6 +22,7 @@
         </activity>
 
         <activity android:name=".ui.Principal"
+            android:configChanges="orientation|keyboardHidden|keyboard"
             android:theme="@style/AppTheme.TranslucentStatusBar">
             <intent-filter>
                 <action android:name="REGISTRO" />
@@ -31,6 +32,7 @@
         </activity>
 
         <activity android:name=".ui.DateDialogHelzio"
+            android:configChanges="orientation|keyboardHidden|keyboard"
             android:theme="@style/AppTheme.Translucent.DateDialog">
             <intent-filter>
                 <action android:name="DATE_DIALOG" />
@@ -40,6 +42,7 @@
         </activity>
 
         <activity android:name=".ui.DateDialogHelzioRegistrar"
+            android:configChanges="orientation|keyboardHidden|keyboard"
             android:theme="@style/AppTheme.Translucent">
             <intent-filter>
                 <action android:name="DATE_DIALOG_REGISTRAR" />
@@ -49,6 +52,7 @@
         </activity>
 
         <activity android:name=".ui.DialogListaEventosHelzio"
+            android:configChanges="orientation|keyboardHidden|keyboard"
             android:windowSoftInputMode="adjustNothing"
             android:theme="@style/AppTheme.Translucent">
             <intent-filter>
@@ -59,6 +63,7 @@
         </activity>
 
         <activity android:name=".ui.DialogInfoEventosHelzio"
+            android:configChanges="orientation|keyboardHidden|keyboard"
             android:windowSoftInputMode="adjustNothing"
             android:theme="@style/AppTheme.Translucent">
             <intent-filter>
@@ -69,6 +74,7 @@
         </activity>
 
         <activity android:name=".ui.RegistrarEvento"
+            android:configChanges="orientation|keyboardHidden|keyboard"
             android:windowSoftInputMode="adjustNothing"
             android:theme="@style/AppTheme.Translucent">
             <intent-filter>
@@ -80,6 +86,7 @@
 
 
         <activity android:name=".ui.DialogAgregarFechas"
+            android:configChanges="orientation|keyboardHidden|keyboard"
             android:windowSoftInputMode="adjustNothing"
             android:theme="@style/AppTheme.Translucent">
             <intent-filter>

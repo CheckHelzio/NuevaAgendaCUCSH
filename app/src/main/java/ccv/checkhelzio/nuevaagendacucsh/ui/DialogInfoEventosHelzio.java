@@ -8,6 +8,8 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -19,6 +21,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
@@ -100,6 +103,10 @@ public class DialogInfoEventosHelzio extends AppCompatActivity {
     private Handler handler;
     private boolean registroCorrecto = false;
 
+
+    private boolean wifiConnected = false;
+    private boolean mobileConnected = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -170,13 +177,16 @@ public class DialogInfoEventosHelzio extends AppCompatActivity {
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface arg0, int arg1) {
-                                        new EliminarEventoBaseDatos().execute();
+                                        checkNetworkConnection();
                                     }
                                 });
                         alertDialogBuilder.setNegativeButton("CANCELAR",
                                 null);
 
                         alertDialogBuilder.create().show();
+
+                        Log.v("ELIMINAR", "ELIMINAR LISTO... ESPERANDO = TRUE");
+                        Principal.esperar = true;
                     } else {
                         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(DialogInfoEventosHelzio.this);
                         alertDialogBuilder.setMessage("\n" + (alerta.equals("") ? "Este evento ya ha finalizado, no se puede eliminar" : alerta));
@@ -469,7 +479,7 @@ public class DialogInfoEventosHelzio extends AppCompatActivity {
                     }
                 }, 1000);
             } else {
-                Toast.makeText(DialogInfoEventosHelzio.this, "El evento con el ID " + evento.getId() + " ha sido eliminado", Toast.LENGTH_LONG).show();
+                //Toast.makeText(DialogInfoEventosHelzio.this, "El evento con el ID " + evento.getId() + " ha sido eliminado", Toast.LENGTH_LONG).show();
                 SharedPreferences prefs = getSharedPreferences("EVENTOS CUCSH", Context.MODE_PRIVATE);
                 prefs.edit().putString("EVENTOS GUARDADOS", st_eventos_guardados).apply();
                 Intent i = getIntent();
@@ -505,5 +515,21 @@ public class DialogInfoEventosHelzio extends AppCompatActivity {
 
         return st_hora + ":" + st_min + am_pm;
 
+    }
+
+    private void checkNetworkConnection() {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
+        if (activeInfo != null && activeInfo.isConnected()) {
+            wifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
+            mobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+            if (wifiConnected) {
+                new EliminarEventoBaseDatos().execute();
+            } else if (mobileConnected) {
+                new EliminarEventoBaseDatos().execute();
+            }
+        } else {
+            Snackbar.make(snackposs, "Hay un problema con la conexión a la base de datos. Verifica tu conexión a internet.", Snackbar.LENGTH_LONG).show();
+        }
     }
 }

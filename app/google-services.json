@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "629708337451",
+    "firebase_url": "https://nueva-agenda-cucsh.firebaseio.com",
+    "project_id": "nueva-agenda-cucsh",
+    "storage_bucket": "nueva-agenda-cucsh.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:629708337451:android:a9a68b8a55ba72b1",
+        "android_client_info": {
+          "package_name": "ccv.checkhelzio.nuevaagendacucsh"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "629708337451-s073qjkcsgc1ddt8tljv57gonbrd0tac.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCi5tmTcwyOn7ElKiJq4J5dOUkXBurw2fY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

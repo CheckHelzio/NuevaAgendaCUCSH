@@ -20,12 +20,14 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -86,10 +88,12 @@ public class Principal extends AppCompatActivity {
     protected static boolean filtro1 = true, filtro2 = true, filtro3  = true, filtro4 = true, filtro5 = true;
     private boolean actualizando = false;
     private Toolbar toolbar;
+    public static boolean esperar = false;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.a);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ButterKnife.bind(this);
 
         if (isScreenLarge()) {
@@ -144,6 +148,7 @@ public class Principal extends AppCompatActivity {
 
             @Override
             public void onDrawerClosed(View drawerView) {
+                esperar = false;
                 // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
                 super.onDrawerClosed(drawerView);
             }
@@ -151,7 +156,7 @@ public class Principal extends AppCompatActivity {
             @Override
             public void onDrawerOpened(View drawerView) {
                 // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
-
+                esperar = true;
                 super.onDrawerOpened(drawerView);
             }
         };
@@ -205,6 +210,7 @@ public class Principal extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
+                Log.v("FRAGMENT", "page selected: " + position);
                 calendarioActualizarDiasMes.set(2016, viewPager.getCurrentItem(), 1);
                 actualizarFecha();
             }
@@ -223,27 +229,43 @@ public class Principal extends AppCompatActivity {
     }
 
     private void checkNetworkConnection() {
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
-        if (activeInfo != null && activeInfo.isConnected()) {
-            wifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
-            mobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
-            if (wifiConnected) {
-                new DescargarBD().execute("http://148.202.6.72/aplicacion/datos2.txt", Principal.this);
-            } else if (mobileConnected) {
-                // SE HA DESCARGADO LA BASE DE DATOS DESDE LOS DATOS MOBILES, ENVIAMOS UNA ALERTA PARA QUE SE DESCARGUEN MANUALMENTE PARA NO CONSUMIR LOS DATOS DEL USUARIO
-                tv_conexion.setText("Para no consumir datos, la actualización de la base de datos es manual mientras no estes conectado a una red WIFI.");
+
+        Log.v("ELIMINAR", "CHECK NETWORK CONECTION");
+
+        if (!esperar){
+
+            Log.v("ELIMINAR", "CHECK NETWORK CONECTION... ESPERANDO = FALSE");
+            ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
+            if (activeInfo != null && activeInfo.isConnected()) {
+                wifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
+                mobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+                if (wifiConnected) {
+                    Log.v("ELIMINAR", "CHECK NETWORK CONECTION... DESCARGAR BASE DE DATOS");
+                    new DescargarBD().execute("http://148.202.6.72/aplicacion/datos2.txt", Principal.this);
+                } else if (mobileConnected) {
+                    // SE HA DESCARGADO LA BASE DE DATOS DESDE LOS DATOS MOBILES, ENVIAMOS UNA ALERTA PARA QUE SE DESCARGUEN MANUALMENTE PARA NO CONSUMIR LOS DATOS DEL USUARIO
+                    tv_conexion.setText("Para no consumir datos, la actualización de la base de datos es manual mientras no estes conectado a una red WIFI.");
+                }
+            }else {
+                // NO HAY CONEXCION A INTERNET MANDAR UN AVISO AL USUARIO Y COMPROBAR CADA SEGUNDO PARA NO SATURAR EL HILO PRINCIPAL
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        // SI NO HAY INTERNET AVISAMOS AL USUARIO PARA QUE VERIFIQUE LAS CONEXIONES
+                        tv_conexion.setText("Hay un problema con la conexión a la base de datos. Verifica tu conexión a internet.");
+
+                        // A PESAR DE NO TENER INTENET SEGUIMOS INTENTANDO PARA CUANDO SE RECUPERE LA CONEXION
+                        checkNetworkConnection();
+                    }
+                },2000);
             }
         }else {
-            // NO HAY CONEXCION A INTERNET MANDAR UN AVISO AL USUARIO Y COMPROBAR CADA SEGUNDO PARA NO SATURAR EL HILO PRINCIPAL
+            Log.v("ELIMINAR", "CHECK NETWORK CONECTION... ESPERANDO = TRUE");
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-
-                    // SI NO HAY INTERNET AVISAMOS AL USUARIO PARA QUE VERIFIQUE LAS CONEXIONES
-                    tv_conexion.setText("Hay un problema con la conexión a la base de datos. Verifica tu conexión a internet.");
-
-                    // A PESAR DE NO TENER INTENET SEGUIMOS INTENTANDO PARA CUANDO SE RECUPERE LA CONEXION
                     checkNetworkConnection();
                 }
             },1000);
@@ -264,24 +286,39 @@ public class Principal extends AppCompatActivity {
     // SI TO DO SALIO BIEN CON LA DESCARGA LLAMAMOS A ESTE METODO PARA FINALIZAR ESTA ETAPA
     public void postDescargar(String s) {
 
-        // ESCRIBIMOS EN EL FOOTER LA HORA DE ACTUALIZACION Y LA GUARDAMOS EN LA BASE DE DATOS PARA DAR REFERENCIA AL USUARIO DE LA ULTIMA VEZ QUE FUE ACTUALIZADA SI SE UTILIZA SIN INTERNET
-        calendarioIrHoy = Calendar.getInstance();
-        SimpleDateFormat format = new SimpleDateFormat("'Actualizado el 'd 'de' MMMM 'del' yyyy 'a las' h:mm a", Locale.forLanguageTag("es-MX"));
-        tv_conexion.setText(format.format(calendarioIrHoy.getTime()));
-        prefs.edit().putString("ACTUALIZACION", format.format(calendarioIrHoy.getTime())).apply();
+        if (!s.equals("Error de conexión")){
 
-        try {
-            // MUCHAS VECES LA BASE DE DATOS ES DESCARGADA CON CODIGO HTML QUE NO NECESITOS, POR ESO AQUI LO REEMPLAZAMOS
-            s = s.split("</form>")[1].trim();
-        } catch (Exception ignored) {
-        }
-        if (!s.trim().equals(st_eventos_guardados.trim())) {
-            // SI LA BASE DE DATOS QUE DESCARGARMOS NO ES IGUAL A LA QUE YA TENEMOS LA SOBREESCRIBIMOS Y DESPUES LLEMANOS NUEVAMENTE LA LISTA DE EVENTOS
-            st_eventos_guardados = s;
-            prefs.edit().putString("EVENTOS GUARDADOS", st_eventos_guardados).apply();
-            new LlenarListaEventos().execute();
+            Log.v("ELIMINAR", "ACTUALIZADO");
+            // ESCRIBIMOS EN EL FOOTER LA HORA DE ACTUALIZACION Y LA GUARDAMOS EN LA BASE DE DATOS PARA DAR REFERENCIA AL USUARIO DE LA ULTIMA VEZ QUE FUE ACTUALIZADA SI SE UTILIZA SIN INTERNET
+            calendarioIrHoy = Calendar.getInstance();
+            SimpleDateFormat format = new SimpleDateFormat("'Actualizado el 'd 'de' MMMM 'del' yyyy 'a las' h:mm a", Locale.forLanguageTag("es-MX"));
+            tv_conexion.setText(format.format(calendarioIrHoy.getTime()));
+            prefs.edit().putString("ACTUALIZACION", format.format(calendarioIrHoy.getTime())).apply();
+
+            try {
+                // MUCHAS VECES LA BASE DE DATOS ES DESCARGADA CON CODIGO HTML QUE NO NECESITOS, POR ESO AQUI LO REEMPLAZAMOS
+                s = s.split("</form>")[1].trim();
+            } catch (Exception ignored) {
+            }
+            if (!s.trim().equals(st_eventos_guardados.trim())) {
+                Log.v("ELIMINAR", "NUEVOS CAMBIOS DETECTADOS");
+                // SI LA BASE DE DATOS QUE DESCARGARMOS NO ES IGUAL A LA QUE YA TENEMOS LA SOBREESCRIBIMOS Y DESPUES LLEMANOS NUEVAMENTE LA LISTA DE EVENTOS
+                st_eventos_guardados = s;
+                prefs.edit().putString("EVENTOS GUARDADOS", st_eventos_guardados).apply();
+                new LlenarListaEventos().execute();
+            }
+        }else {
+            Log.v("ELIMINAR", "DESCARGAR BASE DE DATOS... ERROR DE CONEXION");
         }
 
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                checkNetworkConnection();
+            }
+        },500);
+
+        /*
         // CADA MEDIO SEGUNDO COMPROBAMOS NUEVAMENTE LA CONEXION A INTERNET PARA DESCARGAR CONSTANTEMENTE LA BASE DE DATOS Y CHECAR CAMBIOS
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
@@ -304,7 +341,7 @@ public class Principal extends AppCompatActivity {
 
             // A PESAR DE NO TENER INTENET SEGUIMOS INTENTANDO PARA CUANDO SE RECUPERE LA CONEXION
             checkNetworkConnection();
-        }
+        }*/
     }
 
     @OnClick(R.id.fab)
@@ -321,110 +358,109 @@ public class Principal extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(String... aa12) {
-            // EN OCACIONES LA BASE DE DATOS DESCARGA CODIGO HTML QUE NO NECESITAMOS, LO QUITAMOS AQUI
-            if (st_eventos_guardados.contains("</form>")) {
-                st_eventos_guardados = st_eventos_guardados.split("</form>")[1].trim();
-            }
 
-            lista_eventos.clear();
-            if (st_eventos_guardados.trim().length() > 0) {
-                for (String eventos_suelto : st_eventos_guardados.trim().split("¦")) {
-                    if (!eventos_suelto.trim().equals("")) {
+            Log.v("ELIMINAR", "LLENAR LISTA... BACKGROUND");
 
-                        if (!titulos.contains(eventos_suelto.trim().split("::")[4].trim())) {
-                            titulos += eventos_suelto.trim().split("::")[4].trim() + "¦";
-                        }
-                        if (!tiposDeEvento.contains(eventos_suelto.trim().split("::")[6].trim())) {
-                            tiposDeEvento += eventos_suelto.trim().split("::")[6].trim() + "¦";
-                        }
-                        if (!nombresOrganizador.contains(eventos_suelto.trim().split("::")[7].trim())) {
-                            nombresOrganizador += eventos_suelto.trim().split("::")[7].trim() + "¦";
-                        }
+            if (!esperar){
 
-                        lista_eventos.add(
-                        new Eventos(
-                                // FECHA
-                                eventos_suelto.split("::")[0].trim().replaceAll("[^0-9]+",""),
-                                // HORA INCIAL
-                                eventos_suelto.split("::")[1].trim().replaceAll("[^0-9]+",""),
-                                // HORA FINAL
-                                eventos_suelto.split("::")[2].trim().replaceAll("[^0-9]+",""),
-                                // TITULO
-                                eventos_suelto.split("::")[3].trim(),
-                                // AUDITORIO
-                                eventos_suelto.split("::")[4].trim().replaceAll("[^0-9]+",""),
-                                // TIPO DE EVENTO
-                                eventos_suelto.split("::")[5].trim(),
-                                // NOMBRE DEL ORGANIZADOR
-                                eventos_suelto.split("::")[6].trim(),
-                                // NUMERO TELEFONICO DEL ORGANIZADOR
-                                eventos_suelto.split("::")[7].trim(),
-                                // STATUS DEL EVENTO
-                                eventos_suelto.split("::")[8].trim(),
-                                // QUIEN REGISTRO
-                                eventos_suelto.split("::")[9].trim(),
-                                // CUANDO REGISTRO
-                                eventos_suelto.split("::")[10].trim(),
-                                // NOTAS
-                                eventos_suelto.split("::")[11].trim(),
-                                // ID
-                                eventos_suelto.split("::")[12].trim().replaceAll("[^0-9]+",""),
-                                // TAG
-                                eventos_suelto.trim(),
-                                // FONDO
-                                fondoAuditorio(eventos_suelto.split("::")[4].trim())
-                        ));
-                    }
-
-                    // COMPROBAMOS EL ID DE CADA EVENTO PARA DETERMINAR SI ES MAYOR AL ANTERIOR Y AL FINAL OBTENER EL ID MAS ALTO
-                    if (Integer.parseInt(eventos_suelto.split("::")[12].trim()) > id_prox){
-                        id_prox = Integer.parseInt(eventos_suelto.split("::")[12].trim());
-                    }
+                Log.v("ELIMINAR", "LLENAR LISTA... NO ESPERAR");
+                // EN OCACIONES LA BASE DE DATOS DESCARGA CODIGO HTML QUE NO NECESITAMOS, LO QUITAMOS AQUI
+                if (st_eventos_guardados.contains("</form>")) {
+                    st_eventos_guardados = st_eventos_guardados.split("</form>")[1].trim();
                 }
 
-                stNuevoId = "" + (id_prox + 1);
-                if (stNuevoId.length() == 1) {
-                    stNuevoId = "000" + stNuevoId;
-                } else if (stNuevoId.length() == 2) {
-                    stNuevoId = "00" + stNuevoId;
-                } else if (stNuevoId.length() == 3) {
-                    stNuevoId = "0" + stNuevoId;
+                lista_eventos.clear();
+                if (st_eventos_guardados.trim().length() > 0) {
+                    for (String eventos_suelto : st_eventos_guardados.trim().split("¦")) {
+
+                        if (!eventos_suelto.trim().equals("")) {
+
+                            if (!titulos.contains(eventos_suelto.trim().split("::")[3].trim())) {
+                                titulos += eventos_suelto.trim().split("::")[3].trim() + "¦";
+                            }
+                            if (!tiposDeEvento.contains(eventos_suelto.trim().split("::")[5].trim())) {
+                                tiposDeEvento += eventos_suelto.trim().split("::")[5].trim() + "¦";
+                            }
+                            if (!nombresOrganizador.contains(eventos_suelto.trim().split("::")[6].trim())) {
+                                nombresOrganizador += eventos_suelto.trim().split("::")[6].trim() + "¦";
+                            }
+
+                            lista_eventos.add( new Eventos(
+                                    // FECHA
+                                    eventos_suelto.split("::")[0].trim().replaceAll("[^0-9]+",""),
+                                    // HORA INCIAL
+                                    eventos_suelto.split("::")[1].trim().replaceAll("[^0-9]+",""),
+                                    // HORA FINAL
+                                    eventos_suelto.split("::")[2].trim().replaceAll("[^0-9]+",""),
+                                    // TITULO
+                                    eventos_suelto.split("::")[3].trim(),
+                                    // AUDITORIO
+                                    eventos_suelto.split("::")[4].trim().replaceAll("[^0-9]+",""),
+                                    // TIPO DE EVENTO
+                                    eventos_suelto.split("::")[5].trim(),
+                                    // NOMBRE DEL ORGANIZADOR
+                                    eventos_suelto.split("::")[6].trim(),
+                                    // NUMERO TELEFONICO DEL ORGANIZADOR
+                                    eventos_suelto.split("::")[7].trim(),
+                                    // STATUS DEL EVENTO
+                                    eventos_suelto.split("::")[8].trim(),
+                                    // QUIEN REGISTRO
+                                    eventos_suelto.split("::")[9].trim(),
+                                    // CUANDO REGISTRO
+                                    eventos_suelto.split("::")[10].trim(),
+                                    // NOTAS
+                                    eventos_suelto.split("::")[11].trim(),
+                                    // ID
+                                    eventos_suelto.split("::")[12].trim().replaceAll("[^0-9]+",""),
+                                    // TAG
+                                    eventos_suelto.trim(),
+                                    // FONDO
+                                    fondoAuditorio(eventos_suelto.split("::")[4].trim())
+                            ));
+
+                            // COMPROBAMOS EL ID DE CADA EVENTO PARA DETERMINAR SI ES MAYOR AL ANTERIOR Y AL FINAL OBTENER EL ID MAS ALTO
+                            if (Integer.parseInt(eventos_suelto.split("::")[12].trim()) > id_prox){
+                                id_prox = Integer.parseInt(eventos_suelto.split("::")[12].trim());
+                            }
+                        }
+                    }
+
+                    stNuevoId = "" + (id_prox + 1);
+                    if (stNuevoId.length() == 1) {
+                        stNuevoId = "000" + stNuevoId;
+                    } else if (stNuevoId.length() == 2) {
+                        stNuevoId = "00" + stNuevoId;
+                    } else if (stNuevoId.length() == 3) {
+                        stNuevoId = "0" + stNuevoId;
+                    }
                 }
+            }else {
+                Log.v("ELIMINAR", "LLENAR LISTA... ESPERAR");
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        new LlenarListaEventos().execute();
+                    }
+                },1000);
             }
+
             return null;
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            // COMPROBAMOS QUE NO HAYA ANIMACIONES PENDIENTES ANTES DE LLENAR EL PAGER CON LA INFO DE CADA MES
-            loopAnimando();
-        }
-    }
-
-    private void loopAnimando() {
-        // COMPROBAMOS QUE NO HAYA ANIMACIONES PENDIENTES ANTES DE LLENAR EL PAGER CON LA INFO DE CADA MES
-        // COMPROBAMOS CADA 300 MILISEGUNDOS PARA TENER LA INFO ACTUALIZADA EN CADA MOMENTO
-        if (!DialogListaEventosHelzio.animando){
-
-            // SI NO HAY ANIMACIONES PENDIENTES INICIAMOS EL PAGER
             iniciarPager();
-
-            // DESPUES DE INICIAR EL PAGER INICIAMOS LOS LISTENERS CORRESPONDIENTES
             setListenners();
-        }else {
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    loopAnimando();
-                }
-            },300);
         }
-
     }
+
 
     private void iniciarPager() {
+        Log.v("ELIMINAR", "INICIAR PAGER");
         if (!pagerIniciado){
+
+            Log.v("ELIMINAR", "PAGER NO INICIADO");
             // SI EL PAGER NO ESTA INICIADO LO INICIAMOS POR PRIMERA VEZ
             viewPager = (ViewPager) findViewById(R.id.viewpager);
             viewPager.setOffscreenPageLimit(1);
@@ -433,6 +469,7 @@ public class Principal extends AppCompatActivity {
             viewPager.setCurrentItem(irHoyNumeroMesAño);
             pagerIniciado = true;
         }else {
+            Log.v("ELIMINAR", "PAGER INICIADO");
             // SI EL PAGER YA ESTA INICIADO NO LO RECONSTRUIMOS SOLO LO ACTUALZIAMOS
             viewPager.getAdapter().notifyDataSetChanged();
         }
@@ -509,6 +546,7 @@ public class Principal extends AppCompatActivity {
                 filtro5 = ((CheckBox)((ViewGroup)v).getChildAt(0)).isChecked();
                 break;
         }
+
 
         handler.postDelayed(new Runnable() {
             @Override

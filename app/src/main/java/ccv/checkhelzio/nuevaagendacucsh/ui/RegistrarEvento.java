@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -100,11 +102,16 @@ public class RegistrarEvento extends AppCompatActivity {
     CoordinatorLayout snackposs;
     @BindView(R.id.conteConflictos)
     RelativeLayout conteConflictos;
+    @BindView(R.id.tv_guardar_evento)
+    TextView tv_guardar_evento;
 
-    private Handler handler;
-    private boolean cerrar = false;
+    private Handler handler, handler2;
     private boolean pin_correcto_eliminar = false;
 
+    private boolean wifiConnected = false;
+    private boolean mobileConnected = false;
+
+    private Intent i;
     private final String auditorio1 = "Auditorio Salvador Allende";
     private final String auditorio2 = "Auditorio Silvano Barba";
     private final String auditorio3 = "Auditorio Carlos Ramírez";
@@ -115,15 +122,15 @@ public class RegistrarEvento extends AppCompatActivity {
     private String st_eventos_guardados;
     private String data;
     private int int_fecha;
-    private Snackbar snackHora;
-    private String tagHora = "";
     private Boolean registroCorrecto = false;
     private final static int INICIAL = 333;
     private final static int AGREGAR = 334;
-    private boolean registrando = false;
+    private int unavez = 0;
 
     protected ArrayList<Fecha> listaFechas = new ArrayList<>();
     protected static ArrayList<Conflictos> listaConflictos = new ArrayList<>();
+    private ArrayList<Eventos> listaDeEventosNuevos;
+    private Runnable mRunnable;
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,10 +144,16 @@ public class RegistrarEvento extends AppCompatActivity {
         //INICIAR EL PLUGIN QUE PERMITE HACER LAS DECLARACIONES MAS RAPIDO
         ButterKnife.bind(this);
 
-        if (getIntent().getStringExtra("DONDE").equals("PRINCIPAL")){
+        if (getIntent().getStringExtra("DONDE").equals("PRINCIPAL")) {
+
+            //ANIMACION DE FAB A DIALOG
             FabTransition.setup(this, sfondo);
             getWindow().getSharedElementEnterTransition();
-        }else {
+            listaConflictos.clear();
+            listaFechas.clear();
+        } else {
+
+            i = getIntent();
             //POSPONEMOS LA ANIMACION DE TRANSICION PARA AGREGAR UNA PERSONALIZADA
             postponeEnterTransition();
 
@@ -165,6 +178,13 @@ public class RegistrarEvento extends AppCompatActivity {
     private void iniciarObjetos() {
         // CREAMOS UN HANDLER PARA TAREAS CON TIEMPO DE RETRASO
         handler = new Handler();
+        handler2 = new Handler();
+        mRunnable = new Runnable() {
+            public void run() {
+                loopComprobarhoras();
+            }
+        };
+
     }
 
     private void iniciarDatos() {
@@ -187,12 +207,6 @@ public class RegistrarEvento extends AppCompatActivity {
                 if (!s.toString().equals(result)) {
                     atv_titulo_evento.setText(result);
                     atv_titulo_evento.setSelection(result.length());
-                }
-
-                if (atv_titulo_evento.getText().toString().trim().length() == 0) {
-                    tv_titulo_label.setTextColor(Color.RED);
-                } else {
-                    tv_titulo_label.setTextColor(Color.WHITE);
                 }
             }
         });
@@ -259,6 +273,7 @@ public class RegistrarEvento extends AppCompatActivity {
 
         // COLOCAMOS COMO FECHA INICIAL LA FECHA DEL DIA DEL EVENTO
         int_fecha = getIntent().getIntExtra("DIA_AÑO", -1);
+        Log.v("DIA DEL AÑO", "DIA DEL AÑO:" + int_fecha);
 
         //CONFIGUAR NOMBRE DEL ORGANIZADOR
         tv_nom_org_label.setTextColor(Color.RED);
@@ -340,8 +355,8 @@ public class RegistrarEvento extends AppCompatActivity {
         });
 
         // CONFIGURAR LA PRIMER FECHA EN LA LISTA DE FECHAS
-        if (int_fecha != -1){
-            listaFechas.add(new Fecha(int_fecha, 0,2));
+        if (int_fecha != -1) {
+            listaFechas.add(new Fecha(int_fecha, 0, 2));
         }
 
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -361,88 +376,86 @@ public class RegistrarEvento extends AppCompatActivity {
         rv_fechas.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                loopComprobarhoras();
+                if (unavez == 0){
+                    loopComprobarhoras();
+                    unavez++;
+                }
             }
         });
     }
 
     private void loopComprobarhoras() {
-        // SI LA VENTANA DE REGISTRO ESTA ABIERTA
-        if (!cerrar){
 
-            int x = 0;
-            // SI HAY MAS DE UNA FECHA DE REGISTRO
-            if (listaFechas.size() > 1){
+        Log.v("ERRORES", "NUMERO ERRORES: " + listaConflictos.size());
+        int x = 0;
+        // SI HAY MAS DE UNA FECHA DE REGISTRO
+        if (listaFechas.size() > 1) {
 
-                // HAY QUE COMPROBAR QUE LAS DISTINTAS FECHAS NO TENGAN CONFLICTO ENTRE ELLAS JBH
-                comprobarConFechas();
+            // HAY QUE COMPROBAR QUE LAS DISTINTAS FECHAS NO TENGAN CONFLICTO ENTRE ELLAS JBH
+            comprobarConFechas();
 
-                // POR CADA FECHA ES UN EVENTO DIFERENTE, COMPROBAR CADA UNO DE ESOS EVENTOS
-                for (Fecha f : listaFechas){
-                    comprobarConBaseDatos(f, x);
-                    x++;
-                }
+            // POR CADA FECHA ES UN EVENTO DIFERENTE, COMPROBAR CADA UNO DE ESOS EVENTOS
+            for (Fecha f : listaFechas) {
+                comprobarConBaseDatos(f, x);
+                x++;
             }
-            // SI SOLO HAY UNA FECHA DE REGISTRO
-            else if (listaFechas.size() == 1){
-                // QUITAR TODOS LOS PROBLEMAS DE FECHAS PORQUE NO ABRA YA QUE SOLO HAY UNA FECHA
-                quitarConflictosF(true, 0, 0);
-
-                // COMPROBAR EL UNICO EVENTO CON LA BASE DE DATOS
-                comprobarConBaseDatos(listaFechas.get(0), 0);
-            }
-
-            // SI HAY MAS DE UN CONFLICTO EN LA LISTA
-            if (listaConflictos.size() > 0){
-                // MOSTRAMOS LA LISTA EN LA PANTALLA
-                rv_conflictos.setVisibility(View.VISIBLE);
-                conteConflictos.setVisibility(View.VISIBLE);
-
-                int y  = 0;
-                try {
-                    for (Fecha f : listaFechas){
-                        for (Conflictos c : listaConflictos){
-                            if (c.getNum_fecha() == y){
-                                f.getLabel_inicial().setTextColor(Color.RED);
-                                f.getLabel_final().setTextColor(Color.RED);
-                                break;
-                            }else {
-                                f.getLabel_inicial().setTextColor(Color.parseColor("#121212"));
-                                f.getLabel_final().setTextColor(Color.parseColor("#121212"));
-                            }
-                        }
-                        y++;
-                    }
-                }catch (Exception ignored){}
-            }
-            // SI NO HAY CONFLICTOS
-            else {
-
-                try {
-                    // DESAPARECEMOS LA LISTA DE LA PANTALLA
-                    rv_conflictos.setVisibility(View.INVISIBLE);
-                    conteConflictos.setVisibility(View.INVISIBLE);
-
-                    // COLOREAMOS DE NEGRO TODAS LAS HORAS YA QUE NO HAY ERRORES
-                    for (Fecha f : listaFechas){
-                        f.getLabel_inicial().setTextColor(Color.parseColor("#121212"));
-                        f.getLabel_final().setTextColor(Color.parseColor("#121212"));
-                    }
-                }catch (Exception ignored){}
-
-            }
-
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    loopComprobarhoras();
-                }
-            },1200);
         }
+        // SI SOLO HAY UNA FECHA DE REGISTRO
+        else if (listaFechas.size() == 1) {
+            // QUITAR TODOS LOS PROBLEMAS DE FECHAS PORQUE NO ABRA YA QUE SOLO HAY UNA FECHA
+            quitarConflictosF(true, 0, 0);
+
+            // COMPROBAR EL UNICO EVENTO CON LA BASE DE DATOS
+            comprobarConBaseDatos(listaFechas.get(0), 0);
+        }
+
+        // SI HAY MAS DE UN CONFLICTO EN LA LISTA
+        if (listaConflictos.size() > 0) {
+            // MOSTRAMOS LA LISTA EN LA PANTALLA
+            rv_conflictos.setVisibility(View.VISIBLE);
+            conteConflictos.setVisibility(View.VISIBLE);
+
+            int y = 0;
+            try {
+                for (Fecha f : listaFechas) {
+                    for (Conflictos c : listaConflictos) {
+                        if (c.getNum_fecha() == y) {
+                            f.getLabel_inicial().setTextColor(Color.RED);
+                            f.getLabel_final().setTextColor(Color.RED);
+                            break;
+                        } else {
+                            f.getLabel_inicial().setTextColor(Color.parseColor("#121212"));
+                            f.getLabel_final().setTextColor(Color.parseColor("#121212"));
+                        }
+                    }
+                    y++;
+                }
+            } catch (Exception ignored) {
+            }
+        }
+        // SI NO HAY CONFLICTOS
+        else {
+
+            try {
+                // DESAPARECEMOS LA LISTA DE LA PANTALLA
+                rv_conflictos.setVisibility(View.INVISIBLE);
+                conteConflictos.setVisibility(View.INVISIBLE);
+
+                // COLOREAMOS DE NEGRO TODAS LAS HORAS YA QUE NO HAY ERRORES
+                for (Fecha f : listaFechas) {
+                    f.getLabel_inicial().setTextColor(Color.parseColor("#121212"));
+                    f.getLabel_final().setTextColor(Color.parseColor("#121212"));
+                }
+            } catch (Exception ignored) {
+            }
+
+        }
+
+        handler.postDelayed(mRunnable, 1200);
     }
 
     private void comprobarConFechas() {
-        for (int x = 1; x < listaFechas.size(); x++){
+        for (int x = 1; x < listaFechas.size(); x++) {
 
             // LA FECHA 1 QUE VAMOS A COMPARAR.
             Fecha f1 = listaFechas.get(x);
@@ -454,11 +467,11 @@ public class RegistrarEvento extends AppCompatActivity {
                 Fecha f2 = listaFechas.get(y);
 
                 // SI LAS DOS FECHAS SON DEL MISMO DIA...
-                if (f1.getDia() == f2.getDia()){
+                if (f1.getDia() == f2.getDia()) {
 
                     // EL EVENTO NO COMIENZA POR LO MENOS CON UNA HORA DE DIFERENCIA CON EL PROXIMO
                     // LA HORA INICIAL DEL EVENTO ESTA JUSTO EN MEDIO DEL HORARIO DE OTRO
-                    if (f1.getHoraInicial() > (f2.getHoraInicial()- 2) && f1.getHoraInicial() < f2.getHoraFinal()){
+                    if (f1.getHoraInicial() > (f2.getHoraInicial() - 2) && f1.getHoraInicial() < f2.getHoraFinal()) {
                         agregarConflictoF(new Conflictos(x, y, "F"));
                         break;
                     }
@@ -470,13 +483,13 @@ public class RegistrarEvento extends AppCompatActivity {
                         if (f1.getHoraFinal() > f2.getHoraInicial()) {
                             agregarConflictoF(new Conflictos(x, y, "F"));
                             break;
-                        }else {
+                        } else {
                             quitarConflictosF(false, x, y);
                         }
-                    }else {
+                    } else {
                         quitarConflictosF(false, x, y);
                     }
-                }else {
+                } else {
                     quitarConflictosF(false, x, y);
                 }
             }
@@ -487,7 +500,7 @@ public class RegistrarEvento extends AppCompatActivity {
 
         // HORA Y FECHA DE LA FECHA
         Calendar c = Calendar.getInstance();
-        c.set(2016,0,1);
+        c.set(2016, 0, 1);
         c.set(Calendar.DAY_OF_YEAR, f.getDia());
 
         // HORA Y FECHA ACTUAL
@@ -499,11 +512,12 @@ public class RegistrarEvento extends AppCompatActivity {
         }
 
         // VERFICIAR SI ES EL DIA DE HOY
-        else if (c.get(Calendar.YEAR) == c2.get(Calendar.YEAR) && c.get(Calendar.MONTH) == c2.get(Calendar.MONTH) && c.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH)){
+        else if (c.get(Calendar.YEAR) == c2.get(Calendar.YEAR) && c.get(Calendar.MONTH) == c2.get(Calendar.MONTH) && c.get(Calendar.DAY_OF_MONTH) == c2.get(Calendar.DAY_OF_MONTH)) {
+            Log.v("ERROR", "ES LA MISMA FECHA");
             quitarConflictosV(n);
-            if (f.getHoraInicial() <= horaASpinner(c2.get(Calendar.HOUR_OF_DAY), c2.get(Calendar.MINUTE))){
+            if (f.getHoraInicial() <= horaASpinner(c2.get(Calendar.HOUR_OF_DAY), c2.get(Calendar.MINUTE))) {
                 agregarConflictoV1(new Conflictos(n, 0, "V1"));
-            }else {
+            } else {
                 quitarConflictosV1(n);
             }
         }
@@ -511,40 +525,43 @@ public class RegistrarEvento extends AppCompatActivity {
         else {
             quitarConflictosV(n);
             // SEPARAMOS EN EVENTOS INDIVIDUALES
-            for (Eventos e : Principal.lista_eventos) {
-                if (Integer.parseInt(e.getFecha()) == f.getDia() && e.getAuditorio().equals(AD) && !e.getStatusEvento().equals("X")){
+            try {
+                for (Eventos e : Principal.lista_eventos) {
+                    if (Integer.parseInt(e.getFecha()) == f.getDia() && e.getAuditorio().equals(AD) && !e.getStatusEvento().equals("X")) {
 
-                    // EL EVENTO NO COMIENZA POR LO MENOS CON UNA HORA DE DIFERENCIA CON EL PROXIMO
-                    // LA HORA INICIAL DEL EVENTO ESTA JUSTO EN MEDIO DEL HORARIO DE OTRO
-                    if (f.getHoraInicial() > (Integer.valueOf(e.getHoraInicial()) - 2) && f.getHoraInicial() < Integer.valueOf(e.getHoraFinal())) {
-                        agregarConflictoE(new Conflictos(n, e, AD));
-                        break;
-                    }
-
-                    // LA HORA INICIAL DEL EVENTO ES POR LO MENOS UNA HORA ANTES QUE EL PROX EVENTO
-                    else if (f.getHoraInicial() < (Integer.valueOf(e.getHoraInicial()) - 1)) {
-
-                        // EL EVENTO FINALIZA DENTRO DEL HORARIO DEL PROXIMO O EL HORARIO ES TAN EXTENSO QUE CABE UN EVENTO DENTRO
-                        if (f.getHoraFinal() > Integer.valueOf(e.getHoraInicial())) {
-                            agregarConflictoE(new Conflictos(n, e));
+                        // EL EVENTO NO COMIENZA POR LO MENOS CON UNA HORA DE DIFERENCIA CON EL PROXIMO
+                        // LA HORA INICIAL DEL EVENTO ESTA JUSTO EN MEDIO DEL HORARIO DE OTRO
+                        if (f.getHoraInicial() > (Integer.valueOf(e.getHoraInicial()) - 2) && f.getHoraInicial() < Integer.valueOf(e.getHoraFinal())) {
+                            agregarConflictoE(new Conflictos(n, e, AD));
                             break;
-                        }else {
+                        }
+
+                        // LA HORA INICIAL DEL EVENTO ES POR LO MENOS UNA HORA ANTES QUE EL PROX EVENTO
+                        else if (f.getHoraInicial() < (Integer.valueOf(e.getHoraInicial()) - 1)) {
+
+                            // EL EVENTO FINALIZA DENTRO DEL HORARIO DEL PROXIMO O EL HORARIO ES TAN EXTENSO QUE CABE UN EVENTO DENTRO
+                            if (f.getHoraFinal() > Integer.valueOf(e.getHoraInicial())) {
+                                agregarConflictoE(new Conflictos(n, e));
+                                break;
+                            } else {
+                                quitarConflictosE(n, e);
+                            }
+                        } else {
                             quitarConflictosE(n, e);
                         }
-                    }else {
+                    } else {
                         quitarConflictosE(n, e);
                     }
-                }else {
-                    quitarConflictosE(n, e);
                 }
+            }catch (Exception ignored){
             }
         }
     }
 
     private int horaASpinner(int i, int i1) {
         i = i - 7;
-        i = i*2;
-        if (i1 >= 30){
+        i = i * 2;
+        if (i1 >= 30) {
             i++;
         }
         return i + 2;
@@ -553,20 +570,21 @@ public class RegistrarEvento extends AppCompatActivity {
     private void agregarConflictoV(Conflictos conflicto) {
         try {
             boolean agregar = true;
-            for (Conflictos c : listaConflictos){
-                if(conflicto.getNum_fecha() == c.getNum_fecha() && conflicto.getTipo().equals("V")) {
+            for (Conflictos c : listaConflictos) {
+                if (conflicto.getNum_fecha() == c.getNum_fecha() && conflicto.getTipo().equals("V")) {
                     agregar = false;
                     break;
                 }
             }
 
-            if (agregar){
+            if (agregar) {
                 listaFechas.get(conflicto.getNum_fecha()).getLabel_inicial().setTextColor(Color.RED);
                 listaFechas.get(conflicto.getNum_fecha()).getLabel_final().setTextColor(Color.RED);
                 listaConflictos.add(conflicto);
                 rv_conflictos.getAdapter().notifyDataSetChanged();
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void quitarConflictosV(int xx) {
@@ -578,26 +596,28 @@ public class RegistrarEvento extends AppCompatActivity {
                     rv_conflictos.getAdapter().notifyDataSetChanged();
                 }
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void agregarConflictoV1(Conflictos conflicto) {
         try {
             boolean agregar = true;
-            for (Conflictos c : listaConflictos){
-                if(conflicto.getNum_fecha() == c.getNum_fecha() && conflicto.getTipo().equals("V1")) {
+            for (Conflictos c : listaConflictos) {
+                if (conflicto.getNum_fecha() == c.getNum_fecha() && conflicto.getTipo().equals("V1")) {
                     agregar = false;
                     break;
                 }
             }
 
-            if (agregar){
+            if (agregar) {
                 listaFechas.get(conflicto.getNum_fecha()).getLabel_inicial().setTextColor(Color.RED);
                 listaFechas.get(conflicto.getNum_fecha()).getLabel_final().setTextColor(Color.RED);
                 listaConflictos.add(conflicto);
                 rv_conflictos.getAdapter().notifyDataSetChanged();
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void quitarConflictosV1(int xx) {
@@ -609,7 +629,8 @@ public class RegistrarEvento extends AppCompatActivity {
                     rv_conflictos.getAdapter().notifyDataSetChanged();
                 }
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void quitarConflictosE(int xx, Eventos ee) {
@@ -621,7 +642,8 @@ public class RegistrarEvento extends AppCompatActivity {
                     rv_conflictos.getAdapter().notifyDataSetChanged();
                 }
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void agregarConflictoE(Conflictos conflicto) {
@@ -629,18 +651,18 @@ public class RegistrarEvento extends AppCompatActivity {
         Log.v("CONFLICTOS", "AGREGAR CONFLICO EDE EVENTO");
         try {
             boolean agregar = true;
-            Log.v("CONFLICTOS", "AGREGAR: "  + agregar);
-            for (Conflictos c : listaConflictos){
-                Log.v("CONFLICTOS", "SEPARAR LISTAD E CONFLICTOS EN IND");
-                if(conflicto.getNum_fecha() == c.getNum_fecha() && conflicto.getQueEvento() == c.getQueEvento()) {
+            Log.v("CONFLICTOS", "AGREGAR: " + agregar);
+            for (Conflictos c : listaConflictos) {
+                Log.v("CONFLICTOS", "SEPARAR LISTA DE CONFLICTOS EN IND");
+                if (conflicto.getNum_fecha() == c.getNum_fecha() && conflicto.getQueEvento() == c.getQueEvento()) {
                     Log.v("CONFLICTOS", "UNO IGUAL");
                     agregar = false;
                     break;
                 }
             }
 
-            Log.v("CONFLICTOS", "AGREGAR: "  + agregar);
-            if (agregar){
+            Log.v("CONFLICTOS", "AGREGAR: " + agregar);
+            if (agregar) {
 
                 Log.v("CONFLICTOS", "AGREGAREGANDO");
                 Log.v("CONFLICTOS", "NO. DE FECHA: " + conflicto.getNum_fecha());
@@ -653,40 +675,42 @@ public class RegistrarEvento extends AppCompatActivity {
                 rv_conflictos.getAdapter().notifyDataSetChanged();
                 Log.v("CONFLICTOS", "NOTIFICANDO CAMBIOS");
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void agregarConflictoF(Conflictos conflicto) {
         try {
             boolean agregar = true;
-            for (Conflictos c : listaConflictos){
-                if(conflicto.getNum_fecha() == c.getNum_fecha() && conflicto.getNum_fecha_2() == c.getNum_fecha_2()) {
+            for (Conflictos c : listaConflictos) {
+                if (conflicto.getNum_fecha() == c.getNum_fecha() && conflicto.getNum_fecha_2() == c.getNum_fecha_2()) {
                     agregar = false;
                     break;
                 }
             }
 
-            if (agregar){
+            if (agregar) {
                 listaFechas.get(conflicto.getNum_fecha()).getLabel_inicial().setTextColor(Color.RED);
                 listaFechas.get(conflicto.getNum_fecha()).getLabel_final().setTextColor(Color.RED);
                 listaConflictos.add(conflicto);
                 rv_conflictos.getAdapter().notifyDataSetChanged();
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void quitarConflictosF(boolean b, int xx, int yy) {
         try {
-            if (b){ //  QUITA TODOS LOS CONFLICTOS DE FECHA
+            if (b) { //  QUITA TODOS LOS CONFLICTOS DE FECHA
                 int x = 0;
-                for (Conflictos c : listaConflictos){
-                    if(c.getTipo().equals("F")) {
+                for (Conflictos c : listaConflictos) {
+                    if (c.getTipo().equals("F")) {
                         listaConflictos.remove(x);
                         rv_conflictos.getAdapter().notifyDataSetChanged();
                     }
                     x++;
                 }
-            }else {
+            } else {
                 int x = 0;
                 for (Conflictos c : listaConflictos) {
                     if (c.getTipo().equals("F") && c.getNum_fecha() == xx && c.getNum_fecha_2() == yy) {
@@ -695,7 +719,8 @@ public class RegistrarEvento extends AppCompatActivity {
                     }
                 }
             }
-        }catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
     }
 
     private void colorReveal(final int fondo) {
@@ -749,8 +774,7 @@ public class RegistrarEvento extends AppCompatActivity {
 
     @OnClick(R.id.iv_cerrar_dialog)
     public void cerrar(View view) {
-        cerrar = true;
-        registrando = false;
+        handler.removeCallbacks(mRunnable);
         finishAfterTransition();
     }
 
@@ -778,9 +802,9 @@ public class RegistrarEvento extends AppCompatActivity {
 
     @OnClick(R.id.tv_repeticion)
     public void AbrirDialogAgregarFechas() {
-        if (listaConflictos.size() > 0){
-            Snackbar.make(snackposs, "Antes de agregar más fechas para el evento soluciona los problemas de cupo.", Snackbar.LENGTH_INDEFINITE).show();
-        }else {
+        if (listaConflictos.size() > 0) {
+            Snackbar.make(snackposs, "Antes de agregar más fechas para el evento soluciona los problemas de cupo.", Snackbar.LENGTH_LONG).show();
+        } else {
             Intent intent = new Intent(this, DialogAgregarFechas.class);
             intent.putExtra("DIA", int_fecha);
             Bundle bundle = ActivityOptions.makeSceneTransitionAnimation(this).toBundle();
@@ -788,25 +812,44 @@ public class RegistrarEvento extends AppCompatActivity {
         }
     }
 
-    @OnClick (R.id.tv_guardar_evento)
-    public void registrarEvento(){
-        if (atv_titulo_evento.getText().toString().trim().equals("")){
-            Snackbar.make(snackposs, "Ingresa el titulo del evento.", Snackbar.LENGTH_INDEFINITE).show();
-        }else if (atv_tipo_evento.getText().toString().trim().equals("")){
-            Snackbar.make(snackposs, "Ingresa el tipo evento.", Snackbar.LENGTH_INDEFINITE).show();
-        }else if (listaFechas.size() < 1){
-            Snackbar.make(snackposs, "Elige una fecha para el evento.", Snackbar.LENGTH_INDEFINITE).show();
-        }else if (atv_nombre_org.getText().toString().trim().equals("")){
-            Snackbar.make(snackposs, "Ingresa el nombre del organizador del evento.", Snackbar.LENGTH_INDEFINITE).show();
-        }else if (!pin_correcto_eliminar){
-            Snackbar.make(snackposs, "Ingresa una contraseña valida para registrar el evento.", Snackbar.LENGTH_INDEFINITE).show();
-        }else if (listaConflictos.size() > 0 ){
-            Snackbar.make(snackposs, "Antes de registrar el evento soluciona los problemas de cupo.", Snackbar.LENGTH_INDEFINITE).show();
-        }else {
-            new GuardarEvento().execute();
+    @OnClick(R.id.tv_guardar_evento)
+    public void registrarEvento() {
+        if (listaConflictos.size() > 0) {
+            Snackbar.make(snackposs, "Antes de registrar el evento soluciona los problemas de cupo.", Snackbar.LENGTH_LONG).show();
+        } else if (atv_titulo_evento.getText().toString().trim().equals("")) {
+            Snackbar.make(snackposs, "Ingresa el titulo del evento.", Snackbar.LENGTH_LONG).show();
+        } else if (atv_tipo_evento.getText().toString().trim().equals("")) {
+            Snackbar.make(snackposs, "Ingresa el tipo evento.", Snackbar.LENGTH_LONG).show();
+        } else if (listaFechas.size() < 1) {
+            Snackbar.make(snackposs, "Elige una fecha para el evento.", Snackbar.LENGTH_LONG).show();
+        } else if (atv_nombre_org.getText().toString().trim().equals("")) {
+            Snackbar.make(snackposs, "Ingresa el nombre del organizador del evento.", Snackbar.LENGTH_LONG).show();
+        } else if (!pin_correcto_eliminar) {
+            Snackbar.make(snackposs, "Ingresa una contraseña valida para registrar el evento.", Snackbar.LENGTH_LONG).show();
+        } else {
+            // revisa si hay conexcion a internet
+            checkNetworkConnection();
         }
-
     }
+
+    private void checkNetworkConnection() {
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeInfo = connMgr.getActiveNetworkInfo();
+        if (activeInfo != null && activeInfo.isConnected()) {
+            wifiConnected = activeInfo.getType() == ConnectivityManager.TYPE_WIFI;
+            mobileConnected = activeInfo.getType() == ConnectivityManager.TYPE_MOBILE;
+            if (wifiConnected) {
+                tv_guardar_evento.setEnabled(false);
+                new GuardarEvento().execute();
+            } else if (mobileConnected) {
+                tv_guardar_evento.setEnabled(false);
+                new GuardarEvento().execute();
+            }
+        } else {
+            Snackbar.make(snackposs, "Hay un problema con la conexión a la base de datos. Verifica tu conexión a internet.", Snackbar.LENGTH_LONG).show();
+        }
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -824,10 +867,10 @@ public class RegistrarEvento extends AppCompatActivity {
                     // TRAEMOS LA LISTA DE LAS FECHAS SELECCIONADAS
                     ArrayList<Integer> listaFechas2 = data.getIntegerArrayListExtra("LISTA_FECHAS");
 
-                    for (Integer f : listaFechas2){
+                    for (Integer f : listaFechas2) {
                         try {
-                            listaFechas.add(new Fecha(f, listaFechas.get(0).getHoraInicial(),listaFechas.get(0).getHoraFinal()));
-                        }catch (Exception ignored0){
+                            listaFechas.add(new Fecha(f, listaFechas.get(0).getHoraInicial(), listaFechas.get(0).getHoraFinal()));
+                        } catch (Exception ignored0) {
                             listaFechas.add(new Fecha(f, 0, 0));
                         }
                     }
@@ -839,18 +882,18 @@ public class RegistrarEvento extends AppCompatActivity {
                             Integer i1 = f1.getDia();
                             Integer i2 = f2.getDia();
 
-                            if (i1 == i2){
+                            if (i1 == i2) {
 
                                 Integer i3 = f1.getHoraInicial();
                                 Integer i4 = f2.getHoraInicial();
-                                if (i3 == i4){
+                                if (i3 == i4) {
                                     Integer i5 = f1.getHoraFinal();
                                     Integer i6 = f2.getHoraFinal();
                                     return i5.compareTo(i6);
-                                }else {
+                                } else {
                                     return i3.compareTo(i4);
                                 }
-                            }else {
+                            } else {
                                 return i1.compareTo(i2);
                             }
 
@@ -874,7 +917,6 @@ public class RegistrarEvento extends AppCompatActivity {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            registrando = true;
 
             Calendar calendarioRegistro = Calendar.getInstance();
             SimpleDateFormat format = new SimpleDateFormat("d/MM/yyyy'~'h:mm a");
@@ -884,7 +926,8 @@ public class RegistrarEvento extends AppCompatActivity {
                 st_nota = et_nota.getText().toString();
             }
 
-            for (Fecha f : listaFechas){
+            listaDeEventosNuevos = new ArrayList<>();
+            for (Fecha f : listaFechas) {
                 Eventos nuevoEvento = new Eventos(
                         // FECHA
                         "" + f.getDia(),
@@ -915,8 +958,11 @@ public class RegistrarEvento extends AppCompatActivity {
                         // TAG
                         "",
                         // FONDO
-                        0
+                        fondoAuditorio("" + (sp_auditorios.getSelectedItemPosition() + 1))
                 );
+                if (f.getDia() == int_fecha) {
+                    listaDeEventosNuevos.add(nuevoEvento);
+                }
                 Principal.lista_eventos.add(nuevoEvento);
             }
 
@@ -997,16 +1043,24 @@ public class RegistrarEvento extends AppCompatActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             if (data.contains("error code: ") || !registroCorrecto) {
-                handler.postDelayed(new Runnable() {
+                handler2.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        new GuardarEvento().execute();
+                        checkNetworkConnection();
                     }
                 }, 1000);
             } else {
-                Toast.makeText(RegistrarEvento.this, "El evento con el ID " + Principal.stNuevoId + " ha sido registrado", Toast.LENGTH_LONG).show();
+                rv_conflictos.setVisibility(View.GONE);
+                //Toast.makeText(RegistrarEvento.this, "El evento con el ID " + Principal.stNuevoId + " ha sido registrado", Toast.LENGTH_LONG).show();
                 SharedPreferences prefs = getSharedPreferences("EVENTOS CUCSH", Context.MODE_PRIVATE);
                 prefs.edit().putString("EVENTOS GUARDADOS", st_eventos_guardados).apply();
+
+                if (i != null) {
+                    Principal.esperar = true;
+                    i.putParcelableArrayListExtra("LISTA", listaDeEventosNuevos);
+                    setResult(RESULT_OK, i);
+                }
+
                 cerrar(null);
             }
         }

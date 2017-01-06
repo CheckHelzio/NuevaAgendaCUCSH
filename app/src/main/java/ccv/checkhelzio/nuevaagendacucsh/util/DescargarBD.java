@@ -1,6 +1,7 @@
 package ccv.checkhelzio.nuevaagendacucsh.util;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,17 +22,20 @@ import ccv.checkhelzio.nuevaagendacucsh.ui.Principal;
 
     @Override
     protected String doInBackground(Object... objects) {
+        Log.v("ELIMINAR", "DESCARGAR BASE DE DATOS... BACKGROUND");
         principal = (Principal) objects[1];
         try {
             return loadFromNetwork(objects[0].toString());
         } catch (IOException e) {
-            return new Principal().getString(R.string.connection_error);
+            return "Error de conexión";
         }
     }
 
     @Override
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
+
+        Log.v("ELIMINAR", "DESCARGAR BASE DE DATOS... POST EXECUTE");
         principal.postDescargar(s);
     }
 

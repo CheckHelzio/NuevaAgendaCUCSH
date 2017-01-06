@@ -1,6 +1,5 @@
 package ccv.checkhelzio.nuevaagendacucsh.ui;
 
-import android.animation.Animator;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -11,12 +10,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Fade;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -35,7 +34,7 @@ public class DialogListaEventosHelzio extends Activity {
     @BindView(R.id.tv_nom_dia) TextView tv_nom_dia;
     private List<Eventos> listaEventos;
     private  EventosAdaptador adaptador;
-    protected static Boolean animando = false;
+    private Boolean animando = false;
     private Handler handler;
     private static int REGISTRAR = 1313;
 
@@ -74,7 +73,6 @@ public class DialogListaEventosHelzio extends Activity {
 
             if (listaEventos.size() > 0){
                 tv_mensaje_no_eventos.setVisibility(View.GONE);
-                Log.v("TAMAÑO LISTA", "" + listaEventos.get(0).getFondo());
                 if (getIntent().getBooleanExtra("REGISTRAR", false)){
                     tv_mensaje_con_eventos.setText(R.string.toca_resgitrar_evento);
                     tv_mensaje_con_eventos.setTextColor(Color.BLACK);
@@ -133,10 +131,12 @@ public class DialogListaEventosHelzio extends Activity {
 
     public void dismiss(View view) {
         if (animando){
+            Log.v("ANIMACION", "SIN ANIMACION");
             finish();
-             overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         }else {
             finishAfterTransition();
+            Log.v("ANIMACION", "CON ANIMACION");
         }
     }
 
@@ -172,42 +172,35 @@ public class DialogListaEventosHelzio extends Activity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, final Intent data) {
+    protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK){
-
-            rvEventos.getChildAt(data.getIntExtra("POSITION", 0)).animate().scaleX(0).scaleY(0).setListener(new Animator.AnimatorListener() {
-                @Override
-                public void onAnimationStart(Animator animator) {
-                    animando = true;
-                }
-
-                @Override
-                public void onAnimationEnd(Animator animator) {
-                    adaptador.removeItemAtPosition(data.getIntExtra("POSITION", 0));
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Fade fade = new Fade();
-                            getWindow().setSharedElementReturnTransition(null);
-                            getWindow().setExitTransition(fade);
-                            animando = false;
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (requestCode == REGISTRAR){
+                    if (resultCode == RESULT_OK) {
+                        animando = true;
+                        ArrayList<Eventos> listaDeEventos = data.getParcelableArrayListExtra("LISTA");
+                        for (Eventos e : listaDeEventos){
+                            adaptador.addItem(e);
                         }
-                    },500);
+                    }
+                    Principal.esperar = false;
+                }else {
+                    animando = true;
+                    if (resultCode == RESULT_OK){
+
+                        Log.v("ELIMINAR", "REGRESANDOA  LISTA... RESULTADO OK");
+                        listaEventos.remove(data.getIntExtra("POSITION", 0));
+                        rvEventos.removeViewAt(data.getIntExtra("POSITION", 0));
+                        adaptador.removeItemAtPosition(data.getIntExtra("POSITION", 0));
+                    }
+
+                    Log.v("ELIMINAR", "ESPERANDO = FALSE");
+                    Principal.esperar = false;
+
                 }
-
-                @Override
-                public void onAnimationCancel(Animator animator) {
-
-                }
-
-                @Override
-                public void onAnimationRepeat(Animator animator) {
-
-                }
-            });
-
-
-        }
+            }
+        },150);
     }
 }

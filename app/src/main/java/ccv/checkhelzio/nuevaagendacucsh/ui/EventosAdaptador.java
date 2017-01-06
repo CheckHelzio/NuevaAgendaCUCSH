@@ -70,7 +70,9 @@ public class EventosAdaptador extends RecyclerView.Adapter<EventosAdaptador.Even
         String am_pm, st_min, st_hora;
 
         int hora = (numero / 2) + 7;
-        if (hora > 12) {
+        if (hora == 12){
+            am_pm = " PM";
+        }else if (hora > 12) {
             hora = hora - 12;
             am_pm = " PM";
         } else {
@@ -166,9 +168,14 @@ public class EventosAdaptador extends RecyclerView.Adapter<EventosAdaptador.Even
     }
 
     public void removeItemAtPosition(int position) {
-        eventos.remove(position);
         notifyItemRemoved(position);
         notifyItemRangeChanged(position, eventos.size());
+
+    }
+
+    public void addItem(Eventos evento) {
+        eventos.add(evento);
+        notifyItemInserted(eventos.size() - 1);
     }
 
 }
